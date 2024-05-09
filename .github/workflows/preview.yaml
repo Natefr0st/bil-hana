@@ -1,15 +1,15 @@
 name: Vercel Preview Deployment
 
+on:
+  push:
+    tags:
+      - 'preview-*'
+
 env: 
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-on:
-  push:
-    branches-ignore:
-      - main
-
-jobs: 
+jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
     steps:
