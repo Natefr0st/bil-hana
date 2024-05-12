@@ -8,10 +8,18 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Important: allows Git history to be available for semantic-release
+          persist-credentials: false # Important: this prevents the default GITHUB_TOKEN from being used during checkout
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
       - run: npm ci
-      - run: npx semantic-release
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Ensure this is passed to semantic-release
+        run: npx semantic-release
