@@ -1,0 +1,42 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Necessary to get all tags for correct version bump
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Bump version
+        id: bump_version
+        run: |
+          npm version patch --no-git-tag-version
+          echo "::set-output name=new_version::$(node -p "require('./package.json').version")"
+          git commit -am "Bump version to ${{ steps.bump_version.outputs.new_version }}"
+          git tag v${{ steps.bump_version.outputs.new_version }}
+          git push origin main --tags
+
+      - name: Deploy to Vercel (Preview)
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          alias-domains: your-preview-domain.com
+          scope: your-vercel-team-or-user-name
+          prod: false
