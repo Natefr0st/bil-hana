@@ -3,25 +3,20 @@ name: Deploy to Production
 on:
   workflow_dispatch:
     inputs:
-      git-tag:
-        description: 'Git tag to deploy'
+      tag:
+        description: 'Tag to deploy'
         required: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code at tag
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.inputs.git-tag }}
-
-      - name: Vercel Action (Production)
-        uses: amondnet/vercel-action@v20
+          ref: ${{ github.event.inputs.tag }}
+      - uses: amondnet/vercel-action@v20
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          alias-domains: your-production-domain.com
-          scope: your-vercel-team-or-user-name
-          prod: true
+          vercel-args: '--prod'
